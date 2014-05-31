@@ -1,0 +1,12 @@
+plugin.sidekick.scala.ScalaSideKickPlugin.activate=defer
+plugin.sidekick.scala.ScalaSideKickPlugin.name=ScalaSideKick
+plugin.sidekick.scala.ScalaSideKickPlugin.author=Marcelo Vanzin
+plugin.sidekick.scala.ScalaSideKickPlugin.version=0.1
+plugin.sidekick.scala.ScalaSideKickPlugin.description=SideKick to Scala sources.
+
+# dependencies
+plugin.sidekick.scala.ScalaSideKickPlugin.depend.0=jdk 1.7.0
+plugin.sidekick.scala.ScalaSideKickPlugin.depend.1=jedit 04.05.99.00
+plugin.sidekick.scala.ScalaSideKickPlugin.depend.2=plugin errorlist.ErrorListPlugin 1.9
+plugin.sidekick.scala.ScalaSideKickPlugin.depend.3=plugin sidekick.SideKickPlugin 1.6
+plugin.sidekick.scala.ScalaSideKickPlugin.depend.4=plugin CommonControlsPlugin 1.5

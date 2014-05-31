@@ -1,0 +1,38 @@
+<project name="ScalaSideKick" default="build" basedir=".">
+
+  <property file="build.properties" />
+  <property file="../build.properties" />
+  <property name="build.support" value="../build-support" />
+
+  <property name="plugin.dependencies"
+      value="CommonControls,Console,ErrorList,ProjectViewer" />
+  <property name="jedit.plugins.dir" value="${install.dir}" />
+  <property name="compiler.source" value="1.7" />
+  <property name="compiler.target" value="1.7" />
+  <property environment="env" />
+
+  <import file="${build.support}/plugin-build.xml" />
+
+  <path id="project.class.path">
+    <fileset dir="${env.SCALA_HOME}/lib">
+    	<filename name="*.jar" />
+    </fileset>
+    <fileset dir="${install.dir}">
+      <filename name="*.jar" />
+    </fileset>
+  </path>
+
+  <taskdef resource="scala/tools/ant/antlib.xml"
+           classpathref="project.class.path" />
+
+  <target name="compile" depends="resolve">
+    <mkdir dir="${build.classes}" />
+    <scalac srcdir="${basedir}/src/main/scala"
+            destdir="${build.classes}">
+        <classpath refid="default.class.path" />
+        <classpath refid="project.class.path" />
+      <include name="**/*.scala" />
+    </scalac>
+  </target>
+
+</project>
