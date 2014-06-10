@@ -1,0 +1,6 @@
+<ivy-module version="2.0">
+  <info organisation="jedit-plugins" module="ScalaSideKick"/>
+  <dependencies>
+    <dependency org="org.scalariform" name="scalariform_2.10" rev="0.1.4"/>
+  </dependencies>
+</ivy-module>
