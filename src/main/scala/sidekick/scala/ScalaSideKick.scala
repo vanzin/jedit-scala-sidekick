@@ -41,7 +41,7 @@ class ScalaSideKick extends SideKickParser("scala") {
     try {
       val ast = ScalaParser.parse(buffer.getText())
       val data = new ScalaParsedData(buffer.getName())
-      ast.foreach(n => handleNode(data, n, ""))
+      ast.foreach(n => handleNode(data, n))
       data
     } catch {
       case e: Throwable =>
@@ -50,30 +50,49 @@ class ScalaSideKick extends SideKickParser("scala") {
     }
   }
 
-  private def handleNode(data: ScalaParsedData, node: AstNode,
-      indent: String): Unit = {
+  private def handleNode(data: ScalaParsedData, node: AstNode): Unit = {
     node match {
-      case decl: FullDefOrDcl =>
-        parseDef(data, decl)
-
-      case tmpl: TmplDef =>
-        tmpl.immediateChildren.foreach(
-          c => handleNode(data, c,  indent + "  "))
+      case decl: TmplDef =>
+        val asset = parseTmpl(decl)
+        data.addAsset(asset)
+        decl.immediateChildren.foreach(c => handleChild(asset, c, true))
 
       case n =>
         node.immediateChildren.foreach(
-          c => handleNode(data, c, indent + "  "))
-
+          c => handleNode(data, c))
     }
   }
 
-  private def parseDef(data: ScalaParsedData, decl: FullDefOrDcl): Unit = {
-    var icon: Icon = null
-    var name: String = null
+  private def handleChild(parent: ScalaAsset, node: AstNode,
+      parseFields: Boolean): Unit = {
+    node match {
+      case decl: TmplDef =>
+        val declAsset = parseTmpl(decl)
+        parent.addChild(declAsset)
+        decl.immediateChildren.foreach(
+          c => handleChild(declAsset, c, true))
 
+      case fun: FunDefOrDcl =>
+        val funAsset = parseFun(fun)
+        parent.addChild(funAsset)
+        fun.immediateChildren.foreach(
+          c => handleChild(funAsset, c, false))
+
+      case field: PatDefOrDcl =>
+        if (parseFields) {
+          parent.addChild(parseField(field))
+        }
+
+      case n =>
+        n.immediateChildren.foreach(
+          c => handleChild(parent, c, parseFields))
+    }
+  }
+
+  private def parseTmpl(decl: TmplDef) = {
+    var icon: Icon = null
     val loop = new Breaks()
     loop.breakable {
-      var openBracketCount = 0
       decl.tokens.foreach(t => t.tokenType.name match {
         case "CLASS" =>
           icon = CLASS_ICON
@@ -81,18 +100,32 @@ class ScalaSideKick extends SideKickParser("scala") {
         case "TRAIT" =>
           icon = TRAIT_ICON
 
-        case "VAL" =>
-          icon = FIELD_ICON
-
-        case "VAR" =>
-          icon = FIELD_ICON
-
-        case "DEF" =>
-          icon = DEF_ICON
-
         case "OBJECT" =>
           icon = OBJECT_ICON
 
+        case _ =>
+      })
+    }
+    new ScalaAsset(decl.name.text, decl.firstToken.offset,
+      decl.lastToken.offset + decl.lastToken.length, icon)
+  }
+
+  private def parseFun(fun: FunDefOrDcl) = {
+    new ScalaAsset(fun.nameToken.text, fun.firstToken.offset,
+      fun.lastToken.offset + fun.lastToken.length, DEF_ICON)
+  }
+
+  private def parseField(field: PatDefOrDcl) = {
+    new ScalaAsset(findName(field.tokens), field.firstToken.offset,
+      field.lastToken.offset + field.lastToken.length, FIELD_ICON)
+  }
+
+  private def findName(tokens: Seq[Token]) = {
+    var name: String = null
+    val loop = new Breaks()
+    loop.breakable {
+      var openBracketCount = 0
+      tokens.foreach(t => t.tokenType.name match {
         case "VARID" =>
           if (openBracketCount == 0) {
             name = t.text
@@ -108,16 +141,7 @@ class ScalaSideKick extends SideKickParser("scala") {
         case _ =>
       })
     }
-
-    if (name == null || icon == null) {
-      val tokens = decl.tokens.map(t => t.text).mkString(" ")
-      Log.log(Log.ERROR, this, s"Unrecognized tokens: $tokens")
-      return
-    }
-
-    val asset = new ScalaAsset(name, decl.firstToken.offset,
-      decl.lastToken.offset + decl.lastToken.length, icon)
-    data.addAsset(asset)
+    name
   }
 
 }

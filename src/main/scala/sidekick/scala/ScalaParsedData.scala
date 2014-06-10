@@ -23,7 +23,7 @@ private class ScalaParsedData(fname: String)
     extends SideKickParsedData(fname) {
 
   private[scala] def addAsset(asset: ScalaAsset) = {
-    root.add(new DefaultMutableTreeNode(asset))
+    root.add(asset.getTreeNode())
   }
 
 }
