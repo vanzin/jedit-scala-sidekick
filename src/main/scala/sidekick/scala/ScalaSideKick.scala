@@ -54,8 +54,8 @@ class ScalaSideKick extends SideKickParser("scala") {
     node match {
       case decl: TmplDef =>
         val asset = parseTmpl(decl)
-        data.addAsset(asset)
         decl.immediateChildren.foreach(c => handleChild(asset, c, true))
+        data.addAsset(asset)
 
       case n =>
         node.immediateChildren.foreach(
@@ -106,18 +106,27 @@ class ScalaSideKick extends SideKickParser("scala") {
         case _ =>
       })
     }
-    new ScalaAsset(decl.name.text, decl.firstToken.offset,
-      decl.lastToken.offset + decl.lastToken.length, icon)
+    new ScalaAsset(decl.name.text,
+      AssetType.TYPE,
+      decl.firstToken.offset,
+      decl.lastToken.offset + decl.lastToken.length,
+      icon)
   }
 
   private def parseFun(fun: FunDefOrDcl) = {
-    new ScalaAsset(fun.nameToken.text, fun.firstToken.offset,
-      fun.lastToken.offset + fun.lastToken.length, DEF_ICON)
+    new ScalaAsset(fun.nameToken.text,
+      AssetType.DEF,
+      fun.firstToken.offset,
+      fun.lastToken.offset + fun.lastToken.length,
+      DEF_ICON)
   }
 
   private def parseField(field: PatDefOrDcl) = {
-    new ScalaAsset(findName(field.tokens), field.firstToken.offset,
-      field.lastToken.offset + field.lastToken.length, FIELD_ICON)
+    new ScalaAsset(findName(field.tokens),
+      AssetType.FIELD,
+      field.firstToken.offset,
+      field.lastToken.offset + field.lastToken.length,
+      FIELD_ICON)
   }
 
   private def findName(tokens: Seq[Token]) = {

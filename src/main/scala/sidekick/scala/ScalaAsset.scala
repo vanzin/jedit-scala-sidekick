@@ -16,15 +16,25 @@ package sidekick.scala;
 import javax.swing.Icon
 import javax.swing.text.Position
 import javax.swing.tree.DefaultMutableTreeNode
+import scala.collection.mutable.ListBuffer
 
 import sidekick.Asset
 
-private class ScalaAsset(name: String, start: Int, end: Int, icon: Icon)
+private object AssetType extends Enumeration {
+  type AssetType = Value
+  val FIELD, DEF, TYPE = Value
+}
+
+private class ScalaAsset(name: String,
+    private val atype: AssetType.AssetType,
+    start: Int,
+    end: Int,
+    icon: Icon)
     extends Asset(name) {
 
   private val startPos = new PositionImpl(start)
   private val endPos = new PositionImpl(end)
-  private val treeNode = new DefaultMutableTreeNode(this)
+  private val children = new ListBuffer[ScalaAsset]()
 
   override def getIcon(): Icon = icon
 
@@ -38,13 +48,26 @@ private class ScalaAsset(name: String, start: Int, end: Int, icon: Icon)
 
   override def getEnd(): Position = endPos
 
-  def getTreeNode() = treeNode
+  def getTreeNode(): DefaultMutableTreeNode = {
+    val comp = (a1: ScalaAsset, a2: ScalaAsset) => {
+      if (a1.atype < a2.atype) {
+        true
+      } else if (a1.atype > a2.atype) {
+        false
+      } else {
+        a1.name.compareTo(a2.name) <= 0
+      }
+    }
 
-  def addChild(asset: ScalaAsset) = treeNode.add(asset.getTreeNode())
+    val node = new DefaultMutableTreeNode(this)
+    children.sortWith(comp).foreach(c => node.add(c.getTreeNode()))
+    node
+  }
+
+  def addChild(asset: ScalaAsset) = children += asset
 
   private class PositionImpl(offset: Int) extends Position {
     override def getOffset() = offset
   }
 
 }
-
