@@ -96,12 +96,15 @@ class ScalaSideKick extends SideKickParser("scala") {
       decl.tokens.foreach(t => t.tokenType.name match {
         case "CLASS" =>
           icon = CLASS_ICON
+          loop.break()
 
         case "TRAIT" =>
           icon = TRAIT_ICON
+          loop.break()
 
         case "OBJECT" =>
           icon = OBJECT_ICON
+          loop.break()
 
         case _ =>
       })
