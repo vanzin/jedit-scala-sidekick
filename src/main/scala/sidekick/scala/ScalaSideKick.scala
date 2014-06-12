@@ -117,11 +117,57 @@ class ScalaSideKick extends SideKickParser("scala") {
   }
 
   private def parseFun(fun: FunDefOrDcl) = {
+    val sig = new StringBuilder("(")
+
+    def typeVisitor(te: TypeElement): Unit = {
+      te match {
+        case gt: GeneralTokens =>
+          gt.tokens.foreach(t => sig.append(t.text))
+
+        case t: Type =>
+          t.contents.foreach(typeVisitor)
+
+        case va: VarargsTypeElement =>
+          va.tokens.foreach(t => sig.append(t.text))
+
+        case _ =>
+          System.err.println(s"unhandled: $te")
+      }
+    }
+
+    def paramVisitor(p: Param): Unit = {
+      sig.append(p.id.text)
+      sig.append(": ")
+      p.paramTypeOpt.foreach { case (_, t) =>
+        t.contents.foreach(typeVisitor)
+      }
+    }
+
+    fun.paramClauses.paramClausesAndNewlines.foreach { case (pclause, _) =>
+      pclause.firstParamOption.foreach(paramVisitor)
+      sig.append(", ")
+      pclause.otherParams.foreach { case (_, param) =>
+        paramVisitor(param)
+        sig.append(", ")
+      }
+    }
+    if (sig.length() > 2) {
+      sig.setLength(sig.length() - 2)
+    }
+    sig.append(") => ")
+
+    if (fun.returnTypeOpt.isDefined) {
+      typeVisitor(fun.returnTypeOpt.get._2)
+    } else {
+      sig.append("[Inferred]")
+    }
+
     new ScalaAsset(fun.nameToken.text,
       AssetType.DEF,
       fun.firstToken.offset,
       fun.lastToken.offset + fun.lastToken.length,
-      DEF_ICON)
+      DEF_ICON,
+      Some("%s: %s".format(fun.nameToken.text, sig)))
   }
 
   private def parseField(field: PatDefOrDcl) = {

@@ -29,7 +29,8 @@ private class ScalaAsset(name: String,
     private val atype: AssetType.AssetType,
     start: Int,
     end: Int,
-    icon: Icon)
+    icon: Icon,
+    fullName: Option[String] = None)
     extends Asset(name) {
 
   private val startPos = new PositionImpl(start)
@@ -38,7 +39,7 @@ private class ScalaAsset(name: String,
 
   override def getIcon(): Icon = icon
 
-  override def getLongString(): String = name
+  override def getLongString(): String = fullName.getOrElse(name)
 
   override def getShortString(): String = name
 
