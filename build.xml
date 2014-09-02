@@ -12,6 +12,7 @@
   <property environment="env" />
 
   <import file="${build.support}/plugin-build.xml" />
+  <property name="build.test.classes" value="${build.dir}/test/classes" />
 
   <path id="project.class.path">
     <fileset dir="${env.SCALA_HOME}/lib">
@@ -28,18 +29,36 @@
   <target name="compile" depends="resolve">
     <mkdir dir="${build.extras}" />
     <copy todir="${build.extras}" includeEmptyDirs="false">
-        <fileset dir="${basedir}/src/main/resources">
-          <filename name="**" />
+        <fileset dir="${basedir}">
+          <filename name="src/main/resources/**" />
         </fileset>
     </copy>
 
     <mkdir dir="${build.classes}" />
     <scalac srcdir="${basedir}/src/main/scala"
             destdir="${build.classes}">
-        <classpath refid="default.class.path" />
-        <classpath refid="project.class.path" />
+      <classpath refid="default.class.path" />
+      <classpath refid="project.class.path" />
       <include name="**/*.scala" />
     </scalac>
+  </target>
+
+  <target name="test" depends="build">
+    <taskdef name="scalatest" classname="org.scalatest.tools.ScalaTestAntTask">
+      <classpath refid="default.class.path" />
+      <classpath refid="project.class.path"/>
+    </taskdef>
+
+    <mkdir dir="${build.test.classes}" />
+    <scalac srcdir="${basedir}/src/test/scala"
+            destdir="${build.test.classes}">
+      <classpath refid="default.class.path" />
+      <classpath refid="project.class.path" />
+      <include name="**/*.scala" />
+    </scalac>
+
+    <scalatest runpath="${build.test.classes}" />
+
   </target>
 
 </project>

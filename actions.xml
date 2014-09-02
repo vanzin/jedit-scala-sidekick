@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<!DOCTYPE ACTIONS SYSTEM "actions.dtd">
+
+<ACTIONS>
+
+  <ACTION NAME="scala_remove_unused_imports">
+    <CODE>
+      new sidekick.scala.ImportCleaner(view).run();
+    </CODE>
+  </ACTION>
+
+</ACTIONS>
