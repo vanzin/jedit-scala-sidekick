@@ -23,6 +23,10 @@
     </fileset>
   </path>
 
+  <selector id="extraFiles">
+    <size value="0" when="less" />
+  </selector>
+
   <taskdef resource="scala/tools/ant/antlib.xml"
            classpathref="project.class.path" />
 
@@ -32,6 +36,7 @@
         <fileset dir="${basedir}">
           <filename name="src/main/resources/**" />
         </fileset>
+        <globmapper from="src/main/resources/*" to="*"/>
     </copy>
 
     <mkdir dir="${build.classes}" />
