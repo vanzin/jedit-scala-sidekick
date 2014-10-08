@@ -164,6 +164,26 @@ class ImportCleanerSuite extends FlatSpec {
     runTest(original, expected)
   }
 
+  it should "sort modified multi imports" in {
+    val original = """
+      |import com.example.{Charlie, Bravo => Bravissimo, Alpha}
+      |
+      |class Foo {
+      |  val bar: Charlie = _
+      |  val bar2: Bravissimo = _
+      |}
+      |"""
+    val expected = """
+      |import com.example.{Bravo => Bravissimo, Charlie}
+      |
+      |class Foo {
+      |  val bar: Charlie = _
+      |  val bar2: Bravissimo = _
+      |}
+      |"""
+    runTest(original, expected)
+  }
+
   private def runTest(original: String, expected: String) = {
     val buffer = mockBuffer(original.stripMargin)
     val view = mockView(buffer)

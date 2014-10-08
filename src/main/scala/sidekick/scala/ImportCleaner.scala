@@ -154,6 +154,9 @@ class ImportCleaner(view: View) {
     val names = collectNames(selectors)
       .filter { case (k, v) => !unused.contains(k) }
 
+    val order = names.keys.toSeq
+      .sortWith { (k1, k2) => k1.compareTo(k2) <= 0 }
+
     def mkImport(k: String, v: String, wrap: Boolean) = {
       if (k == v) {
         k
@@ -168,8 +171,8 @@ class ImportCleaner(view: View) {
         val (k, v) = names.head
         mkImport(k, v, true)
       } else {
-        val imports = names
-          .map { case (k, v) => mkImport(k, v, false) }
+        val imports = order
+          .map { k => mkImport(k, names(k), false) }
           .mkString(", ")
         s"{$imports}"
       }
