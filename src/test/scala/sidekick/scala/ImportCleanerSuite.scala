@@ -146,6 +146,24 @@ class ImportCleanerSuite extends FlatSpec {
     runTest(original, expected)
   }
 
+  it should "ignore scala.language imports" in {
+    val original = """
+      |import scala.language
+      |import scala.language.foo
+      |
+      |class Foo {
+      |}
+      |"""
+    val expected = """
+      |import scala.language
+      |import scala.language.foo
+      |
+      |class Foo {
+      |}
+      |"""
+    runTest(original, expected)
+  }
+
   private def runTest(original: String, expected: String) = {
     val buffer = mockBuffer(original.stripMargin)
     val view = mockView(buffer)

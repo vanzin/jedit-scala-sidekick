@@ -94,7 +94,10 @@ class ImportCleaner(view: View) {
     val names = clause.importExpr match {
       case Expr(contents) =>
         val name = contents.last.firstToken.text
-        if (name != "_") {
+        val isScalaLanguage = (contents.size >= 3 &&
+          contents(0).firstToken.text == "scala" &&
+          contents(2).firstToken.text == "language")
+        if (name != "_" && !isScalaLanguage) {
           val map = new mutable.HashMap[String, String]()
           map += (name -> name)
           map
