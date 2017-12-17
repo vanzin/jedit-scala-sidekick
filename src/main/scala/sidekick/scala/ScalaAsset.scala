@@ -50,15 +50,7 @@ private class ScalaAsset(name: String,
   override def getEnd(): Position = endPos
 
   def getTreeNode(): DefaultMutableTreeNode = {
-    val comp = (a1: ScalaAsset, a2: ScalaAsset) => {
-      if (a1.atype < a2.atype) {
-        true
-      } else if (a1.atype > a2.atype) {
-        false
-      } else {
-        a1.name.compareTo(a2.name) <= 0
-      }
-    }
+    val comp = (a1: ScalaAsset, a2: ScalaAsset) => a1.atype > a2.atype
 
     val node = new DefaultMutableTreeNode(this)
     children.sortWith(comp).foreach(c => node.add(c.getTreeNode()))
